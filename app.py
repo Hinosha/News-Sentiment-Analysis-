@@ -12,7 +12,7 @@ days = st.slider("Number of days to analyze", 1, 30, 7)
 
 if st.button("Analyze News"):
     try:
-        api_token = st.secrets["news_api_key"]
+        api_token = st.secrets["api_token"]
         base_url = st.secrets["base_url"]
 
         with st.spinner("Fetching and analyzing news..."):
