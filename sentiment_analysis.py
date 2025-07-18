@@ -3,6 +3,8 @@ import time
 import requests
 import pandas as pd
 import nltk
+# Download VADER lexicon if not already available
+nltk.download('vader_lexicon' , quiet=True)
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from datetime import datetime, timedelta
 
@@ -12,8 +14,7 @@ api_token = st.secrets["api_token"]
 base_url = st.secrets["base_url"]
 
 
-# Download VADER lexicon if not already available
-nltk.download('vader_lexicon')
+
 
 # Initialize Sentiment Analyzer
 sia = SentimentIntensityAnalyzer()
