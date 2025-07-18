@@ -1,25 +1,37 @@
 import streamlit as st
-from sentiment_analysis import get_api_key, fetch_news, process_articles
+import pandas as pd
+from sentiment_analysis import process_articles
 
-st.set_page_config(page_title="News Sentiment Analyzer", layout="wide")
-st.title("📰 Product News Sentiment Analyzer")
+st.set_page_config(page_title="Product News Sentiment Analyzer", layout="centered")
 
-product = st.selectbox("Select a product or enter your own:", ["Apple", "Microsoft", "Tesla", "Custom"])
+st.markdown("## 📰 Product News Sentiment Analyzer")
 
-if product == "Custom":
-    product = st.text_input("Enter your custom product name:")
+# Input UI
+query = st.text_input("Enter a product or keyword to analyze", "Apple")
+days = st.slider("Number of days to analyze", 1, 30, 7)
 
-if st.button("Analyze News") and product:
-    with st.spinner("Fetching and analyzing..."):
-        try:
-            api_key = get_api_key()
-            articles = fetch_news(product, api_key)
-            if not articles:
-                st.warning("No news articles found.")
-            else:
-                df = process_articles(articles)
-                st.success("News articles analyzed!")
-                st.dataframe(df[['title', 'publishedAt', 'Sentiment', 'Label']], use_container_width=True)
-                st.bar_chart(df['Label'].value_counts())
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+if st.button("Analyze News"):
+    try:
+        api_token = st.secrets["news_api_key"]
+        base_url = st.secrets["base_url"]
+
+        with st.spinner("Fetching and analyzing news..."):
+            articles_df, sentiment_df = process_articles(api_token, base_url, query, days)
+
+        st.success("Analysis completed!")
+
+        st.subheader("📊 Sentiment Summary")
+        st.dataframe(sentiment_df)
+
+        st.subheader("🗞️ News Articles")
+        st.dataframe(articles_df[["Date", "Title", "Content"]])
+
+        # Option to download CSVs
+        csv_sentiment = sentiment_df.to_csv(index=False).encode('utf-8')
+        csv_articles = articles_df.to_csv(index=False).encode('utf-8')
+
+        st.download_button("Download Sentiment CSV", csv_sentiment, f"{query}_sentiment.csv", "text/csv")
+        st.download_button("Download Articles CSV", csv_articles, f"{query}_articles.csv", "text/csv")
+
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
