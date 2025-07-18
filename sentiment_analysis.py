@@ -6,6 +6,12 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from datetime import datetime, timedelta
 
+import streamlit as st
+
+api_token = st.secrets["api_token"]
+base_url = st.secrets["base_url"]
+
+
 # Download VADER lexicon if not already available
 nltk.download('vader_lexicon')
 
